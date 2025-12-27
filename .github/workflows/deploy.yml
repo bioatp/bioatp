@@ -1,0 +1,33 @@
+name: Deploy Zensical to EdgeOne
+
+on:
+  push:
+    branches: [ main ] # 指定触发自动部署的分支
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. 设置 Python 环境
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      # 3. 安装 Zensical 
+      - name: Install dependencies
+        run: pip install zensical
+
+      # 4. 构建 Zensical 网站
+      - name: Build site
+        run: zensical build
+
+      # 5. 部署到腾讯云 EdgeOne Pages
+      - name: Deploy to EdgeOne Pages
+        run: npx edgeone pages deploy ./site -n bioatp -t ${{ secrets.EDGEONE_API_TOKEN }}
+        env:
+          EDGEONE_API_TOKEN: ${{ secrets.EDGEONE_API_TOKEN }}
